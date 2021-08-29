@@ -53,7 +53,23 @@
 			<artifactId>core</artifactId>
 			<version>4.8.5</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<!-- Needed to avoid conflict with OkHttp being used in auth0-java and 
+				okhttp3 being used by spring -->
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp</artifactId>
+				<version>4.9.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
@@ -68,6 +84,49 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.web3j</groupId>
+				<artifactId>web3j-maven-plugin</artifactId>
+				<version>4.8.2</version>
+				<executions>
+					<execution>
+						<?m2e execute onConfiguration?>
+						<id>generate-sources-web3j</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate-sources</goal>
+						</goals>
+						<configuration>
+							<packageName>com.devlaunchers.devbots.solidity</packageName>
+							<sourceDestination>${basedir}/target/generated-sources/contracts</sourceDestination>
+							<abiSourceFiles>
+								<directory>${basedir}/src/main/resources/contracts</directory>
+								<includes>
+									<include>*.json_abi</include>
+								</includes>
+							</abiSourceFiles>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/target/generated-sources/contracts</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
