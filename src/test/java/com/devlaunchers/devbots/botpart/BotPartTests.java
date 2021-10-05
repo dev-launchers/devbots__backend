@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.web3j.protocol.core.RemoteFunctionCall;
 
-import com.devlaunchers.devbots.botpart.BotPartStat;
 import com.devlaunchers.devbots.solidity.GameDatabase;
 
 @ActiveProfiles("test")
@@ -32,23 +31,23 @@ class BotPartTests {
     try {
       when(mock.send()).thenReturn(value);
     } catch (Exception e) {
-	e.printStackTrace();
+      e.printStackTrace();
     }
     return mock;
   }
 
   @Test
-  void hello() throws Exception {      
+  void hello() throws Exception {
     BigInteger actualStat = BigInteger.valueOf(321);
     BigInteger botPartID = BigInteger.valueOf(1);
     BigInteger statID = BigInteger.valueOf(0);
-    
-    RemoteFunctionCall<BigInteger> callMock = createMockFunctionCall(actualStat);
-    when(gameDatabase.getBotPartStat(botPartID, statID))
-        .thenReturn(callMock);
 
-    ResponseEntity<BotPartStat> entity = this.restTemplate.getForEntity("/part/1/stat/0", BotPartStat.class);
-    
+    RemoteFunctionCall<BigInteger> callMock = createMockFunctionCall(actualStat);
+    when(gameDatabase.getBotPartStat(botPartID, statID)).thenReturn(callMock);
+
+    ResponseEntity<BotPartStat> entity =
+        this.restTemplate.getForEntity("/part/1/stat/0", BotPartStat.class);
+
     assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     assertThat(entity.getBody().getStatValue()).isEqualTo(actualStat);

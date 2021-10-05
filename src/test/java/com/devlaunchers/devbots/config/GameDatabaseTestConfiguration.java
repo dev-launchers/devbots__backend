@@ -11,11 +11,10 @@ import com.devlaunchers.devbots.solidity.GameDatabase;
 @Profile("test")
 @Configuration
 public class GameDatabaseTestConfiguration {
-    
-    @Bean
-    @Primary
-    public GameDatabase testGameDatabase() {
-	return Mockito.mock(GameDatabase.class);
-    }
-    
+
+  @Bean
+  @Primary
+  public GameDatabase testGameDatabase() {
+    return Mockito.mock(GameDatabase.class);
+  }
 }
