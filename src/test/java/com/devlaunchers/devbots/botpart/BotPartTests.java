@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,25 +31,25 @@ class BotPartTests {
   private <T> RemoteFunctionCall<T> createMockFunctionCall(T value) {
     RemoteFunctionCall<T> mock = Mockito.mock(RemoteFunctionCall.class);
     try {
-      when(mock.send()).thenReturn(value);
+      when(mock.sendAsync()).thenReturn(CompletableFuture.completedFuture(value));
     } catch (Exception e) {
-	e.printStackTrace();
+      e.printStackTrace();
     }
     return mock;
   }
 
   @Test
-  void hello() throws Exception {      
+  void testBotPartStat() throws Exception {
     BigInteger actualStat = BigInteger.valueOf(321);
     BigInteger botPartID = BigInteger.valueOf(1);
     BigInteger statID = BigInteger.valueOf(0);
-    
-    RemoteFunctionCall<BigInteger> callMock = createMockFunctionCall(actualStat);
-    when(gameDatabase.getBotPartStat(botPartID, statID))
-        .thenReturn(callMock);
 
-    ResponseEntity<BotPartStat> entity = this.restTemplate.getForEntity("/part/1/stat/0", BotPartStat.class);
-    
+    RemoteFunctionCall<BigInteger> callMock = createMockFunctionCall(actualStat);
+    when(gameDatabase.getBotPartStat(botPartID, statID)).thenReturn(callMock);
+
+    ResponseEntity<BotPartStat> entity =
+        this.restTemplate.getForEntity("/part/1/stat/0", BotPartStat.class);
+
     assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     assertThat(entity.getBody().getStatValue()).isEqualTo(actualStat);
