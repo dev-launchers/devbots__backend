@@ -28,11 +28,11 @@ class BotBattleControllerTest {
 
   @Test
   void testBattleInit() throws Exception {
-    int nextGameID = 32;
-    int nextNonce = 5311;
+    BigInteger gameID = BigInteger.valueOf(32);
+    BigInteger nonce = BigInteger.valueOf(5311);
 
     when(botBattleService.initBattle(any(Address.class), any(BigInteger.class)))
-        .then((invocation) -> new BotBattleBo());
+        .then((invocation) -> new BotBattleBo(invocation.getArgument(0), invocation.getArgument(1), gameID, nonce));
 
     Address player = new Address("0x1234abcdbeef");
     BigInteger botID = BigInteger.valueOf(421);
@@ -42,16 +42,16 @@ class BotBattleControllerTest {
             "/battle/init", Map.of("player", player, "botID", botID), BotBattleBo.class);
 
     assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    // assertThat(entity.getBody().getPlayer()).isEqualTo(player);
-    // assertThat(entity.getBody().getBotID()).isEqualTo(botID);
-    // assertThat(entity.getBody().getGameID()).isEqualTo(nextGameID);
-    // assertThat(entity.getBody().getNonce()).isEqualTo(nextNonce);
+    assertThat(entity.getBody().getPlayer()).isEqualTo(player);
+    assertThat(entity.getBody().getBotID()).isEqualTo(botID);
+    assertThat(entity.getBody().getGameID()).isEqualTo(gameID);
+    assertThat(entity.getBody().getNonce()).isEqualTo(nonce);
 
-    nextGameID = 33;
-    nextNonce = 123453;
+    BigInteger nextGameID = BigInteger.valueOf(33);
+    BigInteger nextNonce = BigInteger.valueOf(123453);
 
     when(botBattleService.initBattle(any(Address.class), any(BigInteger.class)))
-        .then((invocation) -> new BotBattleBo());
+        .then((invocation) -> new BotBattleBo(invocation.getArgument(0), invocation.getArgument(1), nextGameID, nextNonce));
 
     player = new Address("0xaaaddbeefa1276");
     botID = BigInteger.valueOf(752);
@@ -61,10 +61,10 @@ class BotBattleControllerTest {
             "/battle/init", Map.of("player", player, "botID", botID), BotBattleBo.class);
 
     assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    // assertThat(entity.getBody().getPlayer()).isEqualTo(player);
-    // assertThat(entity.getBody().getBotID()).isEqualTo(botID);
-    // assertThat(entity.getBody().getGameID()).isEqualTo(nextGameID);
-    // assertThat(entity.getBody().getNonce()).isEqualTo(nextNonce);
+    assertThat(entity.getBody().getPlayer()).isEqualTo(player);
+    assertThat(entity.getBody().getBotID()).isEqualTo(botID);
+    assertThat(entity.getBody().getGameID()).isEqualTo(nextGameID);
+    assertThat(entity.getBody().getNonce()).isEqualTo(nextNonce);
   }
 
   @Test
