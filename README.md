@@ -1,5 +1,7 @@
 # devbots__backend
-The backend logic and systems for DevBots [API Documentation](https://studio-ws.apicur.io/sharing/55d30746-025f-4fd8-9b13-eebc86543001)
+The backend logic and systems for DevBots 
+Check out our [wiki](https://github.com/dev-launchers/devbots__general/wiki)!
+[API Documentation](https://studio-ws.apicur.io/sharing/55d30746-025f-4fd8-9b13-eebc86543001)
 
 ## Code Style
 

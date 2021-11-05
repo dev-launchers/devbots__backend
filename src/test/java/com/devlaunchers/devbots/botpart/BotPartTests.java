@@ -2,6 +2,10 @@ package com.devlaunchers.devbots.botpart;
 
 import static org.mockito.Mockito.when;
 
+import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
+
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,30 +31,31 @@ class BotPartTests {
 
     private final String TEST_PASSWORD = "password";
 
-    private <T> RemoteFunctionCall<T> createMockFunctionCall(T value) {
-	RemoteFunctionCall<T> mock = Mockito.mock(RemoteFunctionCall.class);
-	try {
-	    when(mock.send()).thenReturn(value);
-	} catch (Exception e) {
-	    e.printStackTrace();
-	}
-	return mock;
+  private <T> RemoteFunctionCall<T> createMockFunctionCall(T value) {
+    RemoteFunctionCall<T> mock = Mockito.mock(RemoteFunctionCall.class);
+    try {
+      when(mock.sendAsync()).thenReturn(CompletableFuture.completedFuture(value));
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+    return mock;
+  }
 
-//    @Test
-//    void hello() throws Exception {
-//	BigInteger actualStat = BigInteger.valueOf(321);
-//	BigInteger botPartID = BigInteger.valueOf(1);
-//	BigInteger statID = BigInteger.valueOf(0);
-//
-//	RemoteFunctionCall<BigInteger> callMock = createMockFunctionCall(actualStat);
-//	when(gameDatabase.getBotPartStat(botPartID, statID)).thenReturn(callMock);
-//
-//	ResponseEntity<BotPartStat> entity = this.restTemplate.withBasicAuth(TEST_USERNAME, TEST_PASSWORD)
-//		.getForEntity("/part/1/stat/0", BotPartStat.class);
-//
-//	assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-//
-//	assertThat(entity.getBody().getStatValue()).isEqualTo(actualStat);
-//    }
+  @Test
+  void testBotPartStat() throws Exception {
+    BigInteger actualStat = BigInteger.valueOf(321);
+    BigInteger botPartID = BigInteger.valueOf(1);
+    BigInteger statID = BigInteger.valueOf(0);
+
+    RemoteFunctionCall<BigInteger> callMock = createMockFunctionCall(actualStat);
+    when(gameDatabase.getBotPartStat(botPartID, statID)).thenReturn(callMock);
+
+    ResponseEntity<BotPartStat> entity =
+        this.restTemplate.withBasicAuth(TEST_USERNAME, TEST_PASSWORD).getForEntity("/part/1/stat/0", BotPartStat.class);
+
+    assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    assertThat(entity.getBody().getStatValue()).isEqualTo(actualStat);
+  }
+
 }
