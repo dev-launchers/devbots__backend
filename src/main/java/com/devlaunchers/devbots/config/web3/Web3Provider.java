@@ -20,6 +20,7 @@ import org.web3j.tx.gas.StaticGasProvider;
 import org.web3j.utils.Convert;
 import org.web3j.utils.Convert.Unit;
 
+import com.devlaunchers.devbots.solidity.BotHull;
 import com.devlaunchers.devbots.solidity.BotPart;
 import com.devlaunchers.devbots.solidity.GameDatabase;
 
@@ -84,5 +85,15 @@ public class Web3Provider {
       Credentials credentials,
       ContractGasProvider gasProvider) {
     return BotPart.load(contracts.getBotPart(), web3, relayerCredentials, gasProvider);
+  }
+
+  @Bean
+  @Autowired
+  public BotHull botHull(
+      Web3Contracts contracts,
+      Web3j web3,
+      Credentials credentials,
+      ContractGasProvider gasProvider) {
+    return BotHull.load(contracts.getBotHull(), web3, credentials, gasProvider);
   }
 }

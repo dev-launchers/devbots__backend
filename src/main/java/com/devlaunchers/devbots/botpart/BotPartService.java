@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.devlaunchers.devbots.botpart.BotPartBo.BotPartBoBuilder;
-import com.devlaunchers.devbots.exceptions.BotPartNotFoundException;
 import com.devlaunchers.devbots.gamedatabase.GameDatabaseService;
 import com.devlaunchers.devbots.solidity.BotPart;
 
@@ -26,11 +25,10 @@ public class BotPartService {
   private final BotPart botParts;
   private final GameDatabaseService gameDatabaseService;
 
-  public CompletableFuture<BotPartBo> getBotPart(@NotNull BigInteger botPartID)
-      throws BotPartNotFoundException {
+  public CompletableFuture<BotPartBo> getBotPart(@NotNull BigInteger botPartID) {
     BotPartBoBuilder builder = BotPartBo.builder();
     builder.botPartID(botPartID);
-    
+
     CompletableFuture<Void> requests =
         CompletableFuture.allOf(
             botParts.ownerOf(botPartID).sendAsync().thenAccept(builder::owner),
