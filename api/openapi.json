@@ -1,0 +1,794 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "DevBots",
+        "version": "1.0.0",
+        "description": "A sample API that uses a petstore as an example to demonstrate features\nin the OpenAPI 3.0 specification",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Swagger API Team",
+            "url": "http://swagger.io",
+            "email": "apiteam@swagger.io"
+        },
+        "license": {
+            "name": "MIT License",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://petstore.swagger.io/api"
+        }
+    ],
+    "paths": {
+        "/battle/play": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BattlePlayRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BattlePlayRequestResponse"
+                                },
+                                "examples": {
+                                    "Created Battle": {
+                                        "value": {
+                                            "battleId": 25,
+                                            "status": 200
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "The BattleRequest was accepted and queued successfully.\nMore information can be gathered via the /battle/result?battleID={id} endpoint"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardApiResponse"
+                                },
+                                "examples": {
+                                    "Forbidden": {
+                                        "value": {
+                                            "status": 403,
+                                            "statusMessage": "Bot 'id' doesn't belong to the player"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Bot doesn't belong to the calling Player"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardApiResponse"
+                                },
+                                "examples": {
+                                    "Bot not Found": {
+                                        "value": {
+                                            "status": 404,
+                                            "statusMessage": "Bot ID not found"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "No Bot with the specified ID exists"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    }
+                },
+                "security": [
+                    {
+                        "JWT": [
+                        ]
+                    }
+                ],
+                "summary": "Creates a new Battle",
+                "description": "Creates a new Battle with the specified Bot as the attacker.\nThe Bot needs to be owned by the logged In User.\n\nA Opponent gets selected randomly via the Rankings.\n\nThe Battle is saved in a SQL Database and it's ID returned to the callee.\n\nThe Execution of the Battle is put into a queue, to be executed (and published) later."
+            }
+        },
+        "/battle/{battleID}/result": {
+            "get": {
+                "responses": {
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardApiResponse"
+                                },
+                                "examples": {
+                                    "No Battle Found": {
+                                        "value": {
+                                            "status": 404,
+                                            "statusMessage": "No Battle with the given Battle ID has been found!"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "No Battle with the given Battle ID has been found."
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Battle"
+                                }
+                            }
+                        },
+                        "description": "Returns Battle Object either from the Database or from the MatchPayout Smart Contract if needed."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    }
+                },
+                "security": [
+                    {
+                        "JWT": [
+                        ]
+                    }
+                ],
+                "summary": "Returns Result of a Battle"
+            },
+            "parameters": [
+                {
+                    "name": "battleID",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/leaderboard/list": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "pageSize",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "page",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LeaderboardBotList"
+                                }
+                            }
+                        },
+                        "description": "Successfully returns the Leaderboard List"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    }
+                },
+                "summary": "Get Leaderboard List"
+            },
+            "parameters": [
+                {
+                    "name": "page",
+                    "description": "",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "pageSize",
+                    "description": "",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                }
+            ]
+        },
+        "/bot/{botID}": {
+            "get": {
+                "responses": {
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "200": {
+                        "description": "Returns basic Overview of a Bot"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardApiResponse"
+                                },
+                                "examples": {
+                                    "Not found": {
+                                        "value": {
+                                            "status": 404,
+                                            "statusMessage": "Bot ID 'id' could not be found"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Bot ID was not found"
+                    }
+                }
+            }
+        },
+        "/bot/{botID}/details": {
+            "get": {
+                "responses": {
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StandardApiResponse"
+                                },
+                                "examples": {
+                                    "Not Found": {
+                                        "value": {
+                                            "status": 404,
+                                            "statusMessage": "Bot ID was not found"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Bot ID was not found"
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BotDetails"
+                                }
+                            }
+                        },
+                        "description": "Returns Bot Details"
+                    }
+                }
+            }
+        },
+        "/leaderboard/weekly/list": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "pageSize",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "page",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LeaderboardBotList"
+                                }
+                            }
+                        },
+                        "description": "Successfully returns the Leaderboard List"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "summary": "Get Weekly Leaderboard List"
+            },
+            "parameters": [
+                {
+                    "name": "page",
+                    "description": "",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "pageSize",
+                    "description": "",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                }
+            ]
+        },
+        "/leaderboard/monthly/list": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "pageSize",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "page",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LeaderboardBotList"
+                                }
+                            }
+                        },
+                        "description": "Successfully returns the Leaderboard List"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "summary": "Get Monthly Leaderboard List"
+            },
+            "parameters": [
+                {
+                    "name": "page",
+                    "description": "",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "pageSize",
+                    "description": "",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                }
+            ]
+        }
+    },
+    "components": {
+        "schemas": {
+            "BattlePlayRequest": {
+                "description": "",
+                "required": [
+                    "botId"
+                ],
+                "type": "object",
+                "properties": {
+                    "botId": {
+                        "writeOnly": false,
+                        "description": "",
+                        "minimum": 0,
+                        "type": "integer"
+                    }
+                },
+                "example": {
+                    "botId": 68
+                }
+            },
+            "StandardApiResponse": {
+                "title": "Root Type for StandardApiResponse",
+                "description": "",
+                "required": [
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "format": "int32",
+                        "type": "integer",
+                        "example": "403"
+                    },
+                    "statusMessage": {
+                        "type": "string",
+                        "example": "Bot not owned by Player"
+                    }
+                },
+                "example": {
+                    "status": 403,
+                    "statusMessage": "Bot not owned by Player"
+                }
+            },
+            "BattlePlayRequestResponse": {
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/StandardApiResponse"
+                    },
+                    {
+                        "required": [
+                            "battleId"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "battleId": {
+                                "description": "",
+                                "type": "integer",
+                                "readOnly": true,
+                                "example": "531"
+                            }
+                        }
+                    }
+                ],
+                "additionalProperties": false,
+                "example": {
+                    "battleId": 25,
+                    "status": 200
+                }
+            },
+            "Battle": {
+                "title": "Root Type for Battle",
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "required": [
+                            "attackerBotID",
+                            "attackingPlayer",
+                            "battleID"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "battleID": {
+                                "type": "integer"
+                            },
+                            "attackerBotID": {
+                                "type": "integer"
+                            },
+                            "defenderBotID": {
+                                "type": "integer"
+                            },
+                            "attackingPlayer": {
+                                "$ref": "#/components/schemas/Address"
+                            },
+                            "defendingPlayer": {
+                                "$ref": "#/components/schemas/Address"
+                            },
+                            "attackerBotHealth": {
+                                "minimum": 0,
+                                "type": "integer"
+                            },
+                            "transactionHash": {
+                                "$ref": "#/components/schemas/TransactionHash"
+                            },
+                            "defenderBotHealth": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    {
+                        "$ref": "#/components/schemas/StandardApiResponse"
+                    }
+                ],
+                "example": {
+                    "battleID": 42,
+                    "attackerBotID": 5123,
+                    "defenderBotID": 2134,
+                    "attackingPlayer": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+                    "defendingPlayer": "0x7F101fE45e6649A6fB8F3F8B43ed03D353f2B90c",
+                    "attackerBotHealth": 31,
+                    "defenderBotHealth": 0,
+                    "transactionHash": "0xc58ce99c015449ea9c8e61b2ac3c12b09f10e7cc30f5961a8d102eefe55867eb",
+                    "status": 200
+                }
+            },
+            "Address": {
+                "format": "binary",
+                "description": "Representation of a Ethereum Address",
+                "type": "string"
+            },
+            "TransactionHash": {
+                "format": "binary",
+                "description": "Representation of a standard Ethereum Transaction Hash",
+                "type": "string"
+            },
+            "Bot": {
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "required": [
+                            "botID",
+                            "owner",
+                            "score",
+                            "leaderboardRank"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "botID": {
+                                "description": "",
+                                "type": "integer"
+                            },
+                            "owner": {
+                                "$ref": "#/components/schemas/Address",
+                                "description": ""
+                            },
+                            "score": {
+                                "description": "",
+                                "type": "integer"
+                            },
+                            "leaderboardRank": {
+                                "description": "",
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    {
+                        "$ref": "#/components/schemas/StandardApiResponse"
+                    }
+                ],
+                "example": {
+                    "status": 200,
+                    "botID": 31,
+                    "owner": "0xea674fdde714fd979d21ab39518de821009210c8",
+                    "score": 34,
+                    "leaderboardRank": 12
+                }
+            },
+            "BotDetails": {
+                "description": "",
+                "required": [
+                    "botParts"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Bot"
+                    }
+                ],
+                "properties": {
+                    "botParts": {
+                        "description": "",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BotPartDetails"
+                        }
+                    }
+                }
+            },
+            "BotPart": {
+                "description": "",
+                "required": [
+                    "partID",
+                    "partTypeID",
+                    "partStats"
+                ],
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/StandardApiResponse"
+                    }
+                ],
+                "properties": {
+                    "partID": {
+                        "description": "",
+                        "type": "integer"
+                    },
+                    "partTypeID": {
+                        "description": "",
+                        "type": "integer"
+                    },
+                    "partStats": {
+                        "description": "",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
+            "BotPartDetails": {
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/BotPart"
+                    }
+                ]
+            },
+            "LeaderboardBotList": {
+                "title": "Root Type for LeaderboardList",
+                "description": "",
+                "type": "object",
+                "allOf": [
+                    {
+                        "required": [
+                            "leaderboard",
+                            "count",
+                            "page",
+                            "pageSize"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "count": {
+                                "format": "int32",
+                                "type": "integer"
+                            },
+                            "leaderboard": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/LeaderboardEntry"
+                                }
+                            },
+                            "page": {
+                                "description": "",
+                                "type": "integer"
+                            },
+                            "pageSize": {
+                                "description": "",
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    {
+                        "$ref": "#/components/schemas/StandardApiResponse"
+                    }
+                ],
+                "example": {
+                    "status": 200,
+                    "offset": 20,
+                    "page": 2,
+                    "pageSize": 3,
+                    "leaderboard": [
+                        {
+                            "botID": 2,
+                            "owner": "0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+                            "score": 100
+                        },
+                        {
+                            "botID": 4,
+                            "owner": "0xea674fdde714fd979d21ab39518de821009210c8",
+                            "score": 78
+                        },
+                        {
+                            "botID": 1,
+                            "owner": "0xea674fdde714fd979d21ab39518de821009210c8",
+                            "score": 54
+                        }
+                    ]
+                }
+            },
+            "LeaderboardEntry": {
+                "description": "",
+                "required": [
+                    "botID",
+                    "owner",
+                    "score"
+                ],
+                "type": "object",
+                "properties": {
+                    "botID": {
+                        "description": "",
+                        "type": "integer"
+                    },
+                    "owner": {
+                        "$ref": "#/components/schemas/Address",
+                        "description": ""
+                    },
+                    "score": {
+                        "description": "",
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "responses": {
+            "Unauthorized": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/StandardApiResponse"
+                        },
+                        "examples": {
+                            "Unauthorized Example": {
+                                "value": {
+                                    "status": 401,
+                                    "statusMessage": "Unauthorized"
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Requestee must be authorized as a Player or possibly via API Key later on"
+            },
+            "BadRequest": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/StandardApiResponse"
+                        },
+                        "examples": {
+                            "BadRequest": {
+                                "value": {
+                                    "status": 400,
+                                    "statusMessage": "Parameter 'x' is not a number"
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Request has invalid Format"
+            }
+        },
+        "securitySchemes": {
+            "JWT": {
+                "scheme": "bearer",
+                "type": "http"
+            }
+        }
+    },
+    "security": [
+        {
+            "JWT": [
+            ]
+        }
+    ]
+}
