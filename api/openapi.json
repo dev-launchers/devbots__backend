@@ -164,6 +164,24 @@
         },
         "/leaderboard/list": {
             "get": {
+                "parameters": [
+                    {
+                        "name": "pageSize",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "page",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -186,7 +204,7 @@
             },
             "parameters": [
                 {
-                    "name": "offset",
+                    "name": "page",
                     "description": "",
                     "schema": {
                         "type": "integer"
@@ -194,7 +212,7 @@
                     "in": "query"
                 },
                 {
-                    "name": "limit",
+                    "name": "pageSize",
                     "description": "",
                     "schema": {
                         "type": "integer"
@@ -278,6 +296,24 @@
         },
         "/leaderboard/weekly/list": {
             "get": {
+                "parameters": [
+                    {
+                        "name": "pageSize",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "page",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -300,7 +336,7 @@
             },
             "parameters": [
                 {
-                    "name": "offset",
+                    "name": "page",
                     "description": "",
                     "schema": {
                         "type": "integer"
@@ -308,7 +344,7 @@
                     "in": "query"
                 },
                 {
-                    "name": "limit",
+                    "name": "pageSize",
                     "description": "",
                     "schema": {
                         "type": "integer"
@@ -319,6 +355,24 @@
         },
         "/leaderboard/monthly/list": {
             "get": {
+                "parameters": [
+                    {
+                        "name": "pageSize",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "page",
+                        "description": "",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -341,7 +395,7 @@
             },
             "parameters": [
                 {
-                    "name": "offset",
+                    "name": "page",
                     "description": "",
                     "schema": {
                         "type": "integer"
@@ -349,7 +403,7 @@
                     "in": "query"
                 },
                 {
-                    "name": "limit",
+                    "name": "pageSize",
                     "description": "",
                     "schema": {
                         "type": "integer"
@@ -609,14 +663,11 @@
                         "required": [
                             "leaderboard",
                             "count",
-                            "offset"
+                            "page",
+                            "pageSize"
                         ],
                         "type": "object",
                         "properties": {
-                            "offset": {
-                                "format": "int32",
-                                "type": "integer"
-                            },
                             "count": {
                                 "format": "int32",
                                 "type": "integer"
@@ -626,6 +677,14 @@
                                 "items": {
                                     "$ref": "#/components/schemas/LeaderboardEntry"
                                 }
+                            },
+                            "page": {
+                                "description": "",
+                                "type": "integer"
+                            },
+                            "pageSize": {
+                                "description": "",
+                                "type": "integer"
                             }
                         }
                     },
@@ -636,7 +695,8 @@
                 "example": {
                     "status": 200,
                     "offset": 20,
-                    "count": 3,
+                    "page": 2,
+                    "pageSize": 3,
                     "leaderboard": [
                         {
                             "botID": 2,
